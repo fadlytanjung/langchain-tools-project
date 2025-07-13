@@ -19,7 +19,9 @@ class Settings:
     
     # Weather API Settings
     OPENWEATHER_API_KEY: str = os.getenv("OPENWEATHER_API_KEY", "")
-    OPENWEATHER_BASE_URL: str = "https://api.openweathermap.org/data/2.5/weather"
+    OPENWEATHER_BASE_URL: str = os.getenv(
+        "OPENWEATHER_BASE_URL", "https://api.openweathermap.org/data/2.5/weather"
+    )
     
     # LangChain/Smith Settings
     LANGCHAIN_TRACING_V2: bool = os.getenv("LANGCHAIN_TRACING_V2", "false").lower() == "true"

@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-
 @router.post("/query", response_model=QueryResponse)
 async def process_query(request: QueryRequest):
     """Process a user query and route it to the appropriate tool"""
@@ -24,10 +23,7 @@ async def process_query(request: QueryRequest):
         logger.error(f"❌ Error processing query: {str(e)}")
         return JSONResponse(
             status_code=500,
-            content={
-                "error": "Internal server error",
-                "message": str(e)
-            }
+            content={"error": str(e), "message": "Internal server error"},
         )
 
 @router.websocket("/ws")

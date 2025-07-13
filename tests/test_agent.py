@@ -211,9 +211,13 @@ class TestLangGraphAgent(unittest.TestCase):
         mock_response = Mock(spec=AIMessage)
         mock_response.content = "I'll get the weather for you"
         mock_response.tool_calls = [{"name": "get_weather", "args": {"location": "Paris"}, "id": "test_id"}]
-        mock_llm.invoke.return_value = mock_response
+
+        # Mock the bind_tools method to return a mock that returns our response
+        mock_llm_with_tools = MagicMock()
+        mock_llm_with_tools.invoke.return_value = mock_response
+        mock_llm.bind_tools.return_value = mock_llm_with_tools
+
         mock_chat_openai.return_value = mock_llm
-        
         mock_get_weather.invoke.return_value = "Sunny, 25°C"
         
         agent = LangGraphAgent()
@@ -238,9 +242,13 @@ class TestLangGraphAgent(unittest.TestCase):
         mock_response = Mock(spec=AIMessage)
         mock_response.content = "I'll calculate that for you"
         mock_response.tool_calls = [{"name": "calculate_math", "args": {"expression": "2+2"}, "id": "test_id"}]
-        mock_llm.invoke.return_value = mock_response
+
+        # Mock the bind_tools method to return a mock that returns our response
+        mock_llm_with_tools = MagicMock()
+        mock_llm_with_tools.invoke.return_value = mock_response
+        mock_llm.bind_tools.return_value = mock_llm_with_tools
+
         mock_chat_openai.return_value = mock_llm
-        
         mock_calculate_math.invoke.return_value = "4"
         
         agent = LangGraphAgent()

@@ -40,7 +40,7 @@ langchain-tools-project/
 │   └── __init__.py            # Test package
 ├── main.py                    # Application entry point
 ├── run_tests.py               # Test runner script
-├── langgraph-notebook.ipynb   # Jupyter notebook for testing
+├── graph-notebook.ipynb       # Jupyter notebook for testing
 ├── requirements.txt           # Python dependencies
 ├── Dockerfile                 # Docker configuration
 └── README.md                  # This file
@@ -77,6 +77,7 @@ langchain-tools-project/
    
    # OpenWeatherMap (Optional - uses mock data if not provided)
    OPENWEATHER_API_KEY=your_openweather_api_key_here
+   OPENWEATHER_BASE_URL=https://api.openweathermap.org/data/2.5/weather
    
    # LangChain/Smith Tracing (Optional)
    LANGCHAIN_TRACING_V2=true
@@ -100,6 +101,19 @@ langchain-tools-project/
 
    The API will be available at `http://localhost:8000`
 
+### API Documentation with Swagger
+
+Once the application is running, you can access the interactive API documentation:
+
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+The Swagger UI provides an interactive interface where you can:
+- View all available endpoints
+- Test API calls directly from the browser
+- See request/response schemas
+- Try out different queries and see the responses
+
 ### Using Docker
 
 1. **Build the Docker image**
@@ -113,6 +127,8 @@ langchain-tools-project/
    ```
 
 ## API Documentation
+
+> **💡 Tip**: For interactive API testing, visit http://localhost:8000/docs to use the Swagger UI interface.
 
 ### Endpoints
 
@@ -351,7 +367,7 @@ The application can be configured through environment variables:
 
 ### Interactive Testing
 
-The project includes a Jupyter notebook (`langgraph-notebook.ipynb`) for interactive testing and experimentation:
+The project includes a Jupyter notebook (`graph-notebook.ipynb`) for interactive testing and experimentation:
 
 ```bash
 # Install Jupyter (if not already installed)
@@ -360,7 +376,7 @@ pip install jupyter
 # Start Jupyter notebook
 jupyter notebook
 
-# Open langgraph-notebook.ipynb
+# Open graph-notebook.ipynb
 ```
 
 The notebook provides:

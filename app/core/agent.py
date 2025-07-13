@@ -78,7 +78,7 @@ class LangGraphAgent:
         return state
 
     def agent_with_tools(self, state: AgentState) -> AgentState:
-        """Agent node that can use tools - llm_with_tools handles everything."""
+        """Agent node that can use tools - LLM handles tool call extraction, we execute the tool."""
         logger.info("🛠️  Processing query with tools available")
         
         messages = state.get("messages", [])
@@ -87,62 +87,62 @@ class LangGraphAgent:
             state["result"] = "No messages to process"
             state["tool_used"] = "llm"
             return state
-        
+
         logger.debug(f"📨 Processing {len(messages)} messages with tools")
-        
+
+        tool_registry = {
+            "get_weather": get_weather,
+            "calculate_math": calculate_math,
+        }
+
         try:
             result = self.llm_with_tools.invoke(messages)
-            
-            # Check if tools were called and execute them
-            if isinstance(result, AIMessage) and hasattr(result, 'tool_calls') and result.tool_calls:
+            logger.info(f"🔍 LLM tool call result: {result}")
+
+            if (
+                isinstance(result, AIMessage)
+                and hasattr(result, "tool_calls")
+                and result.tool_calls
+            ):
                 logger.info(f"🔧 Tool calls detected: {len(result.tool_calls)} calls")
-                
+
                 tool_call = result.tool_calls[0]
-                tool_name = tool_call.get('name', '')
-                tool_args = tool_call.get('args', {})
-                
+                tool_name = tool_call.get("name", "")
+                tool_args = tool_call.get("args", {})
+
                 logger.info(f"🎯 Executing tool: {tool_name} with args: {tool_args}")
-                
-                # Execute the appropriate tool
-                if tool_name == 'get_weather':
-                    state["tool_used"] = "weather"
-                    location = tool_args.get('location', '')
-                    if location:
-                        state["result"] = get_weather.invoke({'location': location})
+
+                if tool_name in tool_registry:
+                    state["result"] = tool_registry[tool_name].invoke(tool_args)
+                    # Set tool_used to the actual tool name (math or weather)
+                    if tool_name == "get_weather":
+                        state["tool_used"] = "weather"
+                    elif tool_name == "calculate_math":
+                        state["tool_used"] = "math"
                     else:
-                        logger.error("❌ Weather tool missing location argument")
-                        state["result"] = "Error: Weather tool requires location"
-                elif tool_name == 'calculate_math':
-                    state["tool_used"] = "math"
-                    expression = tool_args.get('expression', '')
-                    if expression:
-                        state["result"] = calculate_math.invoke({'expression': expression})
-                    else:
-                        logger.error("❌ Math tool missing expression argument")
-                        state["result"] = "Error: Math tool requires expression"
+                        state["tool_used"] = "llm"
                 else:
                     logger.warning(f"⚠️  Unknown tool name: {tool_name}")
+                    state["result"] = f"Unknown tool: {tool_name}"
                     state["tool_used"] = "llm"
-                    content = result.content
-                    if isinstance(content, list):
-                        content = str(content)
-                    state["result"] = content
             else:
                 logger.info("📝 No tools called, returning LLM response")
-                # No tools called, just return the LLM response
                 state["tool_used"] = "llm"
                 content = result.content
                 if isinstance(content, list):
                     content = str(content)
                 state["result"] = content
-        
+
+            logger.info(
+                f"✅ Tool execution complete. Tool used: {state.get('tool_used')}"
+            )
+
         except Exception as e:
             error_msg = f"Error processing query with tools: {str(e)}"
             logger.error(f"❌ Tool processing error: {error_msg}")
             state["result"] = error_msg
             state["tool_used"] = "llm"
-        
-        logger.info(f"✅ Tool execution complete. Tool used: {state.get('tool_used')}")
+
         return state
 
     def llm_call_router(self, state: AgentState) -> AgentState:
